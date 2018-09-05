@@ -111,7 +111,7 @@ void makeRooms()
   	    }
 	   if(isSafe==1)
                 {
-		  // printf("%d,%d,%d,%d\n",temp->x,temp->y,temp->width,temp->height);
+                  printf("%d,%d,%d,%d\n",temp->x,temp->y,temp->width,temp->height);
 	          rooms[i]=*temp;
                 }
 
@@ -221,13 +221,13 @@ void makeCorridors(int numRooms,room rooms[])
 	  else if(rooms[i].y>rooms[i+1].y)
             {
               int posX=rooms[i].x+rooms[i].width/2;
-              int posY=rooms[i].y-1;
-	      //nt test=0;
+              int posY=rooms[i].y;
+	      int test=0;
 	      do
                  {
-		   //  printf("Testing");
-		   //scanf("%d",&test);
-		   if(posY!=rooms[i+1].y+rooms[i+1].height-1)
+		   printf("Testing");
+		   scanf("&d",test);
+		   if(posY!=rooms[i+1].y+rooms[i+1].height)
 		     {
 		       dungeon[posY][posX]='*';
 		       posY--;
@@ -238,7 +238,7 @@ void makeCorridors(int numRooms,room rooms[])
 		       posX++;
 		       
 		     }
-		   else //(posX>rooms[i+1].x+rooms[i+1].width)
+		   else if(posX>rooms[i+1].x+rooms[i+1].width)
                      {
 		       dungeon[posY][posX]='*';
 		       posX--;
