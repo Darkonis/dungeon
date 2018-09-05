@@ -1,0 +1,8 @@
+main: dungeon_maker.c
+	gcc dungeon_maker.c -o dungeon
+
+#f2c.o: f2c.c cf.h
+ #       gcc -c f2c.c -Wall -Werror -ggdb -o f2c.o
+
+clean:
+	rm -f dungeon *~
