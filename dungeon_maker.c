@@ -22,7 +22,7 @@ int main(int argc, char **argv)
   srand(seed);
   sweep();
   mkBounds();
-  
+  makeRooms();
   printDungeon();
   return 0;
 }
@@ -80,6 +80,7 @@ typedef struct
 void makeRooms()
 {
   int numRooms =rand()%5+5;//howmany random rooms will be genrated between 5-10
+  printf("NumRooms= %d\n",numRooms);
   room rooms[numRooms];
   
   for(int i=0;i<numRooms;i++)
@@ -95,31 +96,47 @@ void makeRooms()
 	  temp->x=rand()%(80-temp->width);
 	  temp->height=rand()%5+3;
 	  temp->y=rand()%(21-temp->height);
+	  if(temp->y==0)
+	    {
+	      temp->y=1;
+	    }
+	  if(temp->x==0)
+	    {
+	      temp->x=1;
+	    }
 	  isSafe=1;
 	  for(int k=0;k<i;k++)//yes this is horrendous for big o time
 	    {
-	      if(!(rooms[k].x>(temp->x+temp->width)||!(temp->x>rooms[k].x+rooms[k].width)))//if the new room is with in the bounds of the x values
+	      if((rooms[k].x<(temp->x+temp->width+1)&&(temp->x<rooms[k].x+rooms[k].width+1)))//if the new room is with in the bounds of the x values
 		{
-		  if(!(rooms[k].y>(temp->y+temp->height))||!(temp->y>rooms[k].y+rooms[k].height)) //if the new room is in the y bounds of the y values
+		  if((rooms[k].y<(temp->y+temp->height+1))&&(temp->y<rooms[k].y+rooms[k].height+1)) //if the new room is in the y bounds of the y values
 		    {
 		      isSafe=0;
 		    }
 		}    
-	      if(isSafe==1)
-		{
-		  rooms[i]=*temp;
-		}
-	    }
+  	    }
+	   if(isSafe==1)
+                {
+                  printf("%d,%d,%d,%d\n",temp->x,temp->y,temp->width,temp->height);
+	          rooms[i]=*temp;
+                }
+
 	}
     }
-  for(int i =0;i<numRooms;i++)
+  
+  for (int i =0;i<numRooms;i++)
     {
-      for(int k=rooms[i].x;k<(rooms[i].x+rooms[i].width);k++)
+      for(int k=rooms[i].y;k<(rooms[i].y+rooms[i].height);k++)
 	{
-	   for(int j=rooms[i].y;j<(rooms[i].y+rooms[i].height);j++)
+	   for(int j=rooms[i].x;j<(rooms[i].x+rooms[i].width);j++)
 	     {
+	       if(k==21||j==80)
+		 {
+		   printf("this is an error");
+		 }
 	       dungeon[k][j]='*';
 	     }
 	}
-    }
+	}
+  printf("numRooms = %d\n",numRooms);
 }
