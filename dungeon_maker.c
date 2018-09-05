@@ -146,6 +146,12 @@ void swap(room *r1, room *r2)
 void makeCorridors(int numRooms,room rooms[])
 {
   int min_idx;
+  for( int i=0;i<numRooms;i++)
+    {
+      printf("%d,",rooms[i].x);
+    }
+printf("\n");
+
   for(int i=0;i<numRooms-1;i++)
     {
       min_idx=i;
@@ -155,17 +161,16 @@ void makeCorridors(int numRooms,room rooms[])
 	    {
 	      min_idx=k;
 	    }
-	  else if(rooms[k].x==rooms[min_idx].x)
-            {
-	      if(rooms[k].y>rooms[min_idx].y)
-		{
-		  min_idx=k;
-		}
-            }
-	  swap(&rooms[min_idx],&rooms[i]);
+	 
 	}
-     
+     swap(&rooms[min_idx],&rooms[i]);
+
     }
+  for( int i=0;i<numRooms;i++)
+    {
+      printf("%d,",rooms[i].x);
+    }
+  printf("\n");
   
   for(int i=0;i<numRooms-1;i++)
     {
