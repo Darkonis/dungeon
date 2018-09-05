@@ -5,6 +5,7 @@
 int width=80;
 int height=21;
 char dungeon[21][80];
+
 int main(int argc, char **argv)
 {
   //int i;
@@ -69,13 +70,6 @@ void printDungeon()
       printf("\n");
     }
 }
-typedef struct
-{
-  int x,y;
-  int height,width;
-
-}room;
-
 
 void makeRooms()
 {
@@ -92,9 +86,9 @@ void makeRooms()
 	  // loopCounter++;
 	  // if(loopCounter==30)//locks at 30 tries // this might need to be changed
 	  room* temp = malloc(sizeof(room));
-	  temp->width = rand()%5+3;
+	  temp->width = rand()%5+4;
 	  temp->x=rand()%(80-temp->width);
-	  temp->height=rand()%5+3;
+	  temp->height=rand()%5+4;
 	  temp->y=rand()%(21-temp->height);
 	  if(temp->y==0)
 	    {
@@ -130,13 +124,132 @@ void makeRooms()
 	{
 	   for(int j=rooms[i].x;j<(rooms[i].x+rooms[i].width);j++)
 	     {
-	       if(k==21||j==80)
+	       dungeon[k][j]='.';
+	       if(j==rooms[i].x||k==rooms[i].y||k==(rooms[i].y+rooms[i].height-1)||j==(rooms[i].x+rooms[i].width-1))
 		 {
-		   printf("this is an error");
+		   dungeon[k][j]='.';
 		 }
-	       dungeon[k][j]='*';
 	     }
 	}
-	}
+    }
   printf("numRooms = %d\n",numRooms);
+  makeCorridors(numRooms,rooms);
 }
+void swap(room *r1, room *r2)
+{
+  room tmp= *r1;
+  *r1=*r2;
+  *r2=tmp;
+}
+
+
+void makeCorridors(int numRooms,room rooms[])
+{
+  int min_idx;
+  for(int i=0;i<numRooms-1;i++)
+    {
+      min_idx=i;
+      for(int k=i+1;k<numRooms;k++)
+	{
+	  if(rooms[k].x<rooms[min_idx].x)
+	    {
+	      min_idx=k;
+	    }
+	  else if(rooms[k].x==rooms[min_idx].x)
+            {
+	      if(rooms[k].y>rooms[min_idx].y)
+		{
+		  min_idx=k;
+		}
+            }
+	  swap(&rooms[min_idx],&rooms[i]);
+	}
+     
+    }
+  
+  for(int i=0;i<numRooms-1;i++)
+    {
+      if(rooms[i].x+rooms[i].width<rooms[i+1].x)
+	{
+	 int  posX=rooms[i].x+rooms[i].width;
+	 int  posY=rooms[i].y+rooms[i].height/2;
+	 while(((dungeon[posY][posX]!='.'))&&dungeon[posY][posX]!='*')
+	    {
+	      if(posX<rooms[i+1].x)
+		{
+		  dungeon[posY][posX]='*';
+		  posX++;
+		}
+	      else if(posY > rooms[i+1].y)
+		{
+		   dungeon[posY][posX]='*';
+                  posY--;
+		}
+	      else if(posY < rooms[i+1].y)
+                {
+                   dungeon[posY][posX]='*';
+                  posY++;
+                }
+	     
+	    }
+	  
+
+	}
+      else// if(rooms[i].x<rooms[i+1].x&&rooms[i].x+rooms[i].width>rooms[i+1].x)
+	{
+	  if(rooms[i].y<rooms[i+1].y)
+	    {
+	      int posX=rooms[i].x+rooms[i].width/2;
+	      int posY=rooms[i].y+rooms[i].height;
+	      while(posY!=21&&(!(dungeon[posY][posX]=='.')&&dungeon[posY][posX]!='*'))
+		 {
+		   if(posY!=rooms[i+1].y)
+		     {
+		   dungeon[posY][posX]='*';
+		   posY++;
+		     }
+		   else if(posX<rooms[i+1].x)
+                     {
+                       dungeon[posY][posX]='*';
+                   posX++;
+
+                     }
+                   else if(posX>rooms[i+1].x+rooms[i+1].width)
+                     {
+                       dungeon[posY][posX]='*';
+                       posX--;
+
+                     }
+
+		 }
+	    }
+	  if(rooms[i].y>rooms[i+1].y)
+            {
+              int posX=rooms[i].x+rooms[i].width/2;
+              int posY=rooms[i].y;
+	      while(posY!=0&&(!(dungeon[posY][posX]=='.')&&dungeon[posY][posX]!='*'))
+                 {
+		   if(posY!=rooms[i+1].y+rooms[i+1].height)
+		     {
+                   dungeon[posY][posX]='*';
+                   posY--;
+		     }
+		   else if(posX<rooms[i+1].x)
+		     {
+		       dungeon[posY][posX]='*';
+	           posX++;
+
+		     }
+		   else if(posX>rooms[i+1].x+rooms[i+1].width)
+                     {
+		       dungeon[posY][posX]='*';
+		       posX--;
+		       
+                     }
+
+		 }
+            }
+
+	}
+    }
+} 
