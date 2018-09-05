@@ -146,12 +146,6 @@ void swap(room *r1, room *r2)
 void makeCorridors(int numRooms,room rooms[])
 {
   int min_idx;
-  for( int i=0;i<numRooms;i++)
-    {
-      printf("%d,",rooms[i].x);
-    }
-printf("\n");
-
   for(int i=0;i<numRooms-1;i++)
     {
       min_idx=i;
@@ -165,13 +159,7 @@ printf("\n");
 	}
      swap(&rooms[min_idx],&rooms[i]);
 
-    }
-  for( int i=0;i<numRooms;i++)
-    {
-      printf("%d,",rooms[i].x);
-    }
-  printf("\n");
-  
+    }  
   for(int i=0;i<numRooms-1;i++)
     {
       if(rooms[i].x+rooms[i].width<rooms[i+1].x)
@@ -200,61 +188,66 @@ printf("\n");
 	  
 
 	}
-      else// if(rooms[i].x<rooms[i+1].x&&rooms[i].x+rooms[i].width>rooms[i+1].x)
+    
+      // else if(rooms[i].x<rooms[i+1].x&&rooms[i].x+rooms[i].width>rooms[i+1].x)
+      //	{
+      else  if(rooms[i].y<rooms[i+1].y)
 	{
-	  if(rooms[i].y<rooms[i+1].y)
+	  int posX=rooms[i].x+rooms[i].width/2;
+	  int posY=rooms[i].y+rooms[i].height;
+	  while(posY!=21&&(!(dungeon[posY][posX]=='.')&&dungeon[posY][posX]!='*'))
 	    {
-	      int posX=rooms[i].x+rooms[i].width/2;
-	      int posY=rooms[i].y+rooms[i].height;
-	      while(posY!=21&&(!(dungeon[posY][posX]=='.')&&dungeon[posY][posX]!='*'))
-		 {
-		   if(posY!=rooms[i+1].y)
-		     {
-		   dungeon[posY][posX]='*';
-		   posY++;
-		     }
-		   else if(posX<rooms[i+1].x)
-                     {
-                       dungeon[posY][posX]='*';
-                   posX++;
-
-                     }
-                   else if(posX>rooms[i+1].x+rooms[i+1].width)
-                     {
-                       dungeon[posY][posX]='*';
-                       posX--;
-
-                     }
-
-		 }
+	      if(posY!=rooms[i+1].y)
+		{
+		  dungeon[posY][posX]='*';
+		  posY++;
+		}
+	      else if(posX<rooms[i+1].x)
+		{
+		  dungeon[posY][posX]='*';
+		  posX++;
+		  
+		}
+	      else if(posX>rooms[i+1].x+rooms[i+1].width)
+		{
+		  dungeon[posY][posX]='*';
+		  posX--;
+		  
+		}
+	      
 	    }
-	  if(rooms[i].y>rooms[i+1].y)
+	}
+      //}
+	  else if(rooms[i].y>rooms[i+1].y)
             {
               int posX=rooms[i].x+rooms[i].width/2;
-              int posY=rooms[i].y;
-	      while(posY!=0&&(!(dungeon[posY][posX]=='.')&&dungeon[posY][posX]!='*'))
+              int posY=rooms[i].y-1;
+	      //nt test=0;
+	      do
                  {
-		   if(posY!=rooms[i+1].y+rooms[i+1].height)
+		   //  printf("Testing");
+		   //scanf("%d",&test);
+		   if(posY!=rooms[i+1].y+rooms[i+1].height-1)
 		     {
-                   dungeon[posY][posX]='*';
-                   posY--;
+		       dungeon[posY][posX]='*';
+		       posY--;
 		     }
 		   else if(posX<rooms[i+1].x)
 		     {
 		       dungeon[posY][posX]='*';
-	           posX++;
-
+		       posX++;
+		       
 		     }
-		   else if(posX>rooms[i+1].x+rooms[i+1].width)
+		   else //(posX>rooms[i+1].x+rooms[i+1].width)
                      {
 		       dungeon[posY][posX]='*';
 		       posX--;
 		       
                      }
 
-		 }
+		 }while((dungeon[posY][posX]!='.')&&dungeon[posY][posX]!='*');
             }
 
-	}
     }
-} 
+}
+
