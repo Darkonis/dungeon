@@ -1,9 +1,41 @@
-main: dungeon_maker.o
-	gcc dungeon_maker.o -o main 
-dungeon_maker.o: dungeon_maker.c
-	gcc -c dungeon_maker.c -Wall -Werror -ggdb -o dungeon_maker.o
-#f2c.o: f2c.c cf.h
- #       gcc -c f2c.c -Wall -Werror -ggdb -o f2c.o
+CC = gcc
+CXX = g++
+ECHO = echo
+RM = rm -f
+
+CFLAGS = -Wall -Werror -ggdb -funroll-loops -pg
+CXXFLAGS = -Wall -Werror -ggdb -funroll-loops                                           
+LDFLAGS = 
+
+BIN = dungeon_maker
+OBJS = dungeon_maker.o heap.o
+
+all: $(BIN) etags
+
+$(BIN): $(OBJS)
+	@$(ECHO) Linking $@
+	@$(CC) $^ -o $@ $(LDFLAGS)
+
+-include $(OBJS:.o=.d)
+
+%.o: %.c
+	@$(ECHO) Compiling $<
+	@$(CC) $(CFLAGS) -MMD -MF $*.d -c $<
+
+%.o: %.cpp
+	@$(ECHO) Compiling $<
+	@$(CXX) $(CXXFLAGS) -MMD -MF $*.d -c $<
+
+.PHONY: all clean clobber etags
 
 clean:
-	rm -f dungeon main *~ 
+	@$(ECHO) Removing all generated files
+	@$(RM) *.o $(BIN) *.d TAGS core vgcore.* gmon.out
+
+clobber: clean
+	@$(ECHO) Removing backup files
+	@$(RM) *~ \#* *pgm
+
+etags:
+	@$(ECHO) Updating TAGS
+	@etags *.[ch]
