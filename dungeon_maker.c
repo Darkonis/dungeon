@@ -729,14 +729,45 @@ void save(dungeon_t *d)
     {
       printf("File Save Error");
     }
+  int temp=22;
 
 
-  free(store);
+  free(toSave);
   f.close();//close the file when done saving
 }
-void load()
+void load(dungeon_t *d)
 {
-  
+  File* f = fopen(".rlg327/dungeon","r");
+  fseek(f, 0, SEEK_END);
+  long loadLength  = ftell(f);
+  rewind(f);
+  char* toLoad = malloc(loadLength);
+  fgets(toLoad,loadLength,f);
+  d->xPos=toLoad[20];
+  d->yPos=toLoad[21];
+   for(int i=0;i<DUNGEON_Y;i++)
+    {
+      for(int k=0;k<DUNGEON_X;k++)
+        {
+          hardness[i][k]= toLoad[temp];
+          temp++;
+        }
+    }
+   d->numRooms=(loadLength-temp)/4;
+   for(int i=0;i<d->numRooms;i++)
+     {
+       room_t temp = d->rooms[i]
+       temp->position[0] = toLoad[temp];
+       temp->position[1] = toLoad[temp+1];
+       temp->size[0]=toLoad[temp+2];
+       temp->size[1]=toLoad[temp+3];
+
+
+
+	 temp+=4;
+     }
+   f.close();
+   free(toLoad);
 }
 int main(int argc, char *argv[])
 {
