@@ -66,6 +66,8 @@ typedef struct room {
 
 typedef struct dungeon {
   uint32_t num_rooms;
+  uint8_t xPos;
+  uint8_t yPos;
   room_t rooms[MAX_ROOMS];
   terrain_type_t map[DUNGEON_Y][DUNGEON_X];
   /* Since hardness is usually not used, it would be expensive to pull it *
@@ -410,7 +412,7 @@ static int smooth_hardness(dungeon_t *d)
   uint8_t hardness[DUNGEON_Y][DUNGEON_X];
 
   memset(&hardness, 0, sizeof (hardness));
-
+  
   /* Seed with some values */
   for (i = 1; i < 255; i += 20) {
     do {
@@ -570,7 +572,6 @@ static int empty_dungeon(dungeon_t *d)
       }
     }
   }
-
   return 0;
 }
 
@@ -683,7 +684,60 @@ void init_dungeon(dungeon_t *d)
 {
   empty_dungeon(d);
 }
+void save(dungeon_t *d)
+{
+  char* path = malloc(strlen(getenv("Home")+strlen(/.rlg327)) +1);
+  strcpy(path,strcat(getenv("HOME"),"/.rlg327/"));
+  int i =mkdir(path,2);//makes the directory to save to if it hasn't been made already  
+  File* f = fopen(".rlg327/dungeon","w");
+  char* toSave[]=malloc(1702+d->numRooms*sizeof(room_t)+1);//allocates memory for all gurrenteed space + number of rooms * the size of a room might have to change this
+  toSave[0]=RGF327_F2018;
+  uint32 vers=htobe32(0);
+  toSave[12]= hi;
+  uint32 name = malloc(1702+d->numRooms*sizeof(room_t)+1);
+  name= htobe32(name);
+  toSave[16]=name;
+  toSave[20]=d->xPos;
+  toSave[21]=d->yPos;
+  int temp =22;
+  for(int i=0;i<DUNGEON_Y;i++)
+    {
+      for(int k=0;k<DUNGEON_X;k++)
+	{
+	  toSave[temp]= hardness[i][k];
+	  temp++;
+	}
+    }
+  for(int i =0; i<d->numRooms;i++)
+    {
+      room_t inPro = d->rooms[i];
+      toSave[temp]=inPro->position[0];
+      temp++;
+      toSave[temp]=inPro->position[1];
+      temp++;
+      toSave[temp]=inPro->size[0];
+      temp++;
+      toSave[temp]=inPro->size[1];
+    }
+  // temp++;
+  // toSave[temp]= // null byte?
+  if(f != NULL )
+    {
+      fprintf(f,"%s",toSave);
+    }
+  else
+    {
+      printf("File Save Error");
+    }
 
+
+  free(store);
+  f.close();//close the file when done saving
+}
+void load()
+{
+  
+}
 int main(int argc, char *argv[])
 {
   dungeon_t d;
@@ -706,6 +760,6 @@ int main(int argc, char *argv[])
   gen_dungeon(&d);
   render_dungeon(&d);
   delete_dungeon(&d);
-
+  save(&d);
   return 0;
 }
