@@ -685,44 +685,49 @@ void init_dungeon(dungeon_t *d)
 }
 void save(dungeon_t *d)
 {
-  char path[ strlen(getenv("Home")+strlen("/.rlg327:")) +1] ;
+  char path[ strlen(getenv("HOME")+strlen("/.rlg327:")) +1] ;
   strcpy(path,strcat(getenv("HOME"),"/.rlg327/"));
   mkdir(path,2);//makes the directory to save to if it hasn't been made already  
-  FILE* f = fopen(".rlg327/dungeon","w");
-  char* toSave[1702+d->num_rooms*sizeof(room_t)+1];//allocates memory for all gurrenteed space + number of rooms * the size of a room might have to change this
-  toSave[0]="RGF327_F2018";
-  uint32_t vers=htobe32(0);
-  *toSave[12]= vers;
-  uint32_t size = 1702+d->num_rooms*sizeof(room_t)+1;
-  size= htobe32(size);
-  *toSave[16]=size;
-  *toSave[20]=d->xPos;
-  *toSave[21]=d->yPos;
+  FILE* f = fopen(".rlg327/dungeontest","w");
+  uint32_t saveLength= 1702+d->num_rooms*4+1;
+  char* toSave=(char*) malloc(saveLength);//allocates memory for all gurrenteed space + number of rooms * 4
+  char* name = "RGL327_F2018";
+  toSave[0]=*name;
+  // char* toLoad =(char*) malloc(loadLength);
+   uint32_t vers=htobe32(0);
+  printf("%d\n", saveLength);
+  printf("%ld\n",sizeof(*toSave));
+  toSave[12]= vers;
+  // uint32_t size = 1702+d->num_rooms*sizeof(room_t)+1;
+  saveLength= htobe32(saveLength);
+  toSave[16]=saveLength;
+  toSave[20]=d->xPos;
+  toSave[21]=d->yPos;
   int temp =22;
   for(int i=0;i<DUNGEON_Y;i++)
     {
       for(int k=0;k<DUNGEON_X;k++)
 	{
-	  *toSave[temp]= d->hardness[i][k];
+	  toSave[temp]= d->hardness[i][k];
 	  temp++;
 	}
     }
-  for(int i =0; i<d->num_rooms;i++)
+   for(int i =0; i<d->num_rooms;i++)
     {
       room_t inPro = d->rooms[i];
-      *toSave[temp]=inPro.position[0];
+      toSave[temp]=inPro.position[0];
       temp++;
-      *toSave[temp]=inPro.position[1];
+      toSave[temp]=inPro.position[1];
       temp++;
-      *toSave[temp]=inPro.size[0];
+      toSave[temp]=inPro.size[0];
       temp++;
-      *toSave[temp]=inPro.size[1];
+      toSave[temp]=inPro.size[1];
     }
   // temp++;
   // toSave[temp]= // null byte?
   if(f != NULL )
     {
-      fprintf(f,"%s",*toSave);
+      fprintf(f,"%d",*toSave);
     }
   else
     {
@@ -736,25 +741,70 @@ void save(dungeon_t *d)
 }
 void load(dungeon_t *d)
 {
-  FILE* f = fopen(".rlg327/dungeon","r");
-  fseek(f, 0, SEEK_END);
-  long loadLength  = ftell(f);
+  //int i=0;
+  char path[ strlen(getenv("HOME")+strlen("/.rlg327/dungeon")) +strlen("dungeon")+1] ;
+   strcpy(path,strcat(getenv("HOME"),"/.rlg327/dungeon"));
+  //strcpy(path,strcat(path,"dungeon"));
+
+  FILE *f =fopen(path,"r");
+  
+  uint32_t loadLength;
+  fseek (f , 0 , SEEK_END);
+  loadLength= ftell(f)+1;
+  //  fscanf(f,"%d",&loadLength);
   rewind(f);
-  char* toLoad =(char*) malloc(loadLength);
-  fgets(toLoad,loadLength,f);
+  printf("%d\n",loadLength);
+  //loadLength=be32toh(loadLength);
+  char* toLoad =(char*) malloc(loadLength);  
+  // printf("%d",loadLength);
+  // fscanf(f,"%s",);
+  //int convert = {toLoad[16],toLoad[17],toLoad[18],toLoad[19]};
+  //int loadLength= convert;
+  // memcpy(&i, a, sizeof(i));
+  //uint32_t loadLength=store[16];
+  //printf("%s",store);
+  
+  //loadLength=be32toh(loadLength);
+  //fclose(f);
+  //f = fopen(".rlg327/dungeon","r");
+  //char toLoad[loadLength];
+  for(int i=0;i<loadLength;i++)
+    {
+      fscanf(f,"%c",&toLoad[i]);
+    }
+  
+  printf("%s",toLoad);
+  //fgets(toLoad,loadLength,f);
   d->xPos=toLoad[20];
   d->yPos=toLoad[21];
+  //loadLength =toLoad[16];
+  //loadLength=be32toh(loadLength);  
+  printf("\n%d\n",loadLength);
   int temp=22;
+   fscanf(f,"%s",toLoad);
+
    for(int i=0;i<DUNGEON_Y;i++)
     {
       for(int k=0;k<DUNGEON_X;k++)
         {
-         d-> hardness[i][k]= toLoad[temp];
-          temp++;
+	 
+	  unsigned char l =toLoad[temp];
+	  //    printf("%d,",l);
+	  d-> hardness[i][k]= l;
+	  temp++;
+	    
         }
+      //temp++;
+      // fgets(toLoad, loadLength, f);
+      //fscanf(f,"%s",toLoad);
+
+       // printf("\n");
     }
+    printf("\n%d\n",temp);
    d->num_rooms=(loadLength-temp)/4;
-   for(int i=0;i<d->num_rooms;i++)
+   printf("%d\n%d\n",loadLength,d->num_rooms);
+   
+    for(int i=0;i<d->num_rooms;i++)
      {
        // room_t temp2 = d->rooms[i];
        d->rooms[i].position[0] = toLoad[temp];
@@ -764,16 +814,66 @@ void load(dungeon_t *d)
        
 
 	 temp+=4;
-     }
-   fclose(f);
-   free(toLoad);
+	 }
+    char toPrint[DUNGEON_Y][DUNGEON_X];
+       for(int i=0;i<DUNGEON_Y;i++)
+	 {
+	   for(int k=0;k<DUNGEON_X;k++)
+	     {
+	       //printf("%u,",toLoad[temp]);                                                                                                                                                                     
+	       // unsigned char l =toLoad[temp];
+	       //d-> hardness[i][k]= l;
+	       // printf("%d,",d->hardness[i][k]);
+	       
+	       if(d->hardness[i][k]==0)
+		 {
+		   toPrint[i][k]='*'; 
+		 }
+	       
+	       else if(d->hardness[i][k]==255&&(i==0||i==20))
+		 {
+		   toPrint[i][k]='-';
+		 }
+	       else if(d->hardness[i][k]==255&&(k==0||k==79))
+		 {
+		   toPrint[i][k]='|';
+		 }	   
+	       else
+		 {
+		   toPrint[i][k]=' ';
+		 }
+	       
+	     }
+	 }
+       for(int i=0;i<d->num_rooms;i++)
+	 {
+	   room_t loadRoom= d->rooms[i];
+	   for(int k=loadRoom.position[0];k<loadRoom.position[0]+loadRoom.size[0];k++)
+	     {
+	       for(int j=loadRoom.position[1];j<loadRoom.position[1]+loadRoom.size[1];j++)
+		 {
+		   toPrint[j][k]='.';
+		 }
+	     }
+	 }
+     for(int i=0;i<DUNGEON_Y;i++)
+         {
+           for(int k=0;k<DUNGEON_X;k++)
+             {
+	       printf("%c",toPrint[i][k]);
+	     }
+	   printf("\n");
+	 }
+    fclose(f);
+    free(toLoad);
+  
 }
 int main(int argc, char *argv[])
 {
   dungeon_t d;
   struct timeval tv;
   uint32_t seed;
-  int flagL=0;//load flag
+   int flagL=0;//load flag
   int flagS=0;//save flag
   UNUSED(in_room);
 
@@ -793,25 +893,37 @@ int main(int argc, char *argv[])
 	      break;
 	    case 'S':flagS=1;
 	      break;
-	    case 'l':flagL=1;
-	      break;
-	    case 'L':flagL=1;
-	      break;
+	      	    case 'l':flagL=1;
+	       break;
+	      case 'L':flagL=1;
+	       break;
 	    }
 	}
     }
-  if(flagL==1)
+   if(flagL==1)
     {
+      init_dungeon(&d);
       load(&d);
     }
-  else
+     else
     {
   printf("Using seed: %u\n", seed);
   srand(seed);
   init_dungeon(&d);
   gen_dungeon(&d);
-  render_dungeon(&d);
     }
+   /*
+   for(int i=0;i<DUNGEON_Y;i++)
+    {
+      for(int k=0;k<DUNGEON_X;k++)
+        {
+	  int i = d.hardness[i][k];
+          printf("%d, ",i);
+        }
+      printf("\n");
+    }
+   */
+   //  render_dungeon(&d);
   if(flagS==1)
     {
       save(&d);

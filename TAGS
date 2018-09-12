@@ -72,8 +72,8 @@ void render_dungeon(650,20051
 void delete_dungeon(678,20658
 void init_dungeon(682,20697
 void save(686,20753
-void load(737,22057
-int main(771,22846
+void load(742,22203
+int main(871,25367
 
 heap.c,1009
 #undef min4,39
