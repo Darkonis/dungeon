@@ -685,22 +685,45 @@ void init_dungeon(dungeon_t *d)
 }
 void save(dungeon_t *d)
 {
-  char path[ strlen(getenv("HOME")+strlen("/.rlg327:")) +1] ;
-  strcpy(path,strcat(getenv("HOME"),"/.rlg327/"));
-  mkdir(path,2);//makes the directory to save to if it hasn't been made already  
-  FILE* f = fopen(".rlg327/dungeontest","w");
-  uint32_t saveLength= 1702+d->num_rooms*4+1;
-  char* toSave=(char*) malloc(saveLength);//allocates memory for all gurrenteed space + number of rooms * 4
+  
+  char path[ strlen(getenv("HOME")+strlen("/.rlg327/dungeon"))+1];
+  strcpy(path,getenv("HOME"));
+  strcat(path,"/.rlg327/dungeon");
+  char folderpath[ strlen(getenv("HOME")+strlen("/.rlg327"))+1];
+  strcpy(folderpath,getenv("HOME"));
+  strcat(folderpath,"/.rlg327");
+
+  //path=getenv("HOME");
+  //printf("%s\n",path);
+  //printf("/home/darron/.rlg327/duchar path[ strlen(getenv("HOME")+strlen("/.rlg327/dungeon2"))+1];
+  mkdir(folderpath,2);//makes the directory to save to if it hasn't been made already  
+  FILE* f = fopen(path,"w");
+
+  
+  if(f==NULL)
+    {
+      printf("Error file null\n");
+      exit(-1);
+    }
+  //int* t=malloc(1702+(d->num_rooms)*4+1);
+  //printf("%p",t);
+  // *t =  1702+(d->num_rooms)*4+1;
+   // printf("%d",*t);
+  uint32_t saveLength =1702+(d->num_rooms)*4+1;
+    //  saveLength = (1702+d->num_rooms*4+1);
+  char* toSave = (char*) malloc(saveLength);//allocates memory for all gurrenteed space + number of rooms * 4
+  //printf("%d", *toSave);
   char* name = "RGL327_F2018";
-  toSave[0]=*name;
   // char* toLoad =(char*) malloc(loadLength);
    uint32_t vers=htobe32(0);
-  printf("%d\n", saveLength);
-  printf("%ld\n",sizeof(*toSave));
+   //printf("%d\n", saveLength);
+   //printf("%ld\n",sizeof(toSave));
+  toSave[0]=*name;
   toSave[12]= vers;
   // uint32_t size = 1702+d->num_rooms*sizeof(room_t)+1;
-  saveLength= htobe32(saveLength);
-  toSave[16]=saveLength;
+  // printf("\n%d\n",saveLength);
+  //int l=htobe32(saveLength);
+  toSave[16]= htobe32(saveLength);
   toSave[20]=d->xPos;
   toSave[21]=d->yPos;
   int temp =22;
@@ -708,46 +731,53 @@ void save(dungeon_t *d)
     {
       for(int k=0;k<DUNGEON_X;k++)
 	{
-	  toSave[temp]= d->hardness[i][k];
+	  toSave[temp] = d->hardness[i][k];
+	  //printf("%d,",d->hardness[i][k]);
+	  //printf("%d,",(uint8_t) toSave[temp]);
 	  temp++;
 	}
+      //printf("\n");
     }
    for(int i =0; i<d->num_rooms;i++)
     {
       room_t inPro = d->rooms[i];
-      toSave[temp]=inPro.position[0];
-      temp++;
-      toSave[temp]=inPro.position[1];
-      temp++;
-      toSave[temp]=inPro.size[0];
-      temp++;
-      toSave[temp]=inPro.size[1];
+      toSave[temp]=inPro.position[0];      
+      toSave[temp+1]=inPro.position[1];
+      //temp++;
+      toSave[temp+2]=inPro.size[0];
+      //temp++;
+      toSave[temp+3]=inPro.size[1];
+      temp+=4;
     }
+   // printf("\n");
   // temp++;
   // toSave[temp]= // null byte?
-  if(f != NULL )
-    {
-      fprintf(f,"%d",*toSave);
-    }
-  else
-    {
-      printf("File Save Error");
-    }
-  //int temp=22;
+   //printf("Save Length :%d\n",saveLength);
 
+   for(int i=0;i<saveLength;i++)
+     {
+       // printf("%u,",toSave[i]);
+       fprintf(f,"%c",toSave[i]);
+       // printf("%d,",(uint8_t) toSave[i]);
+       	 
+     }
 
-  free(toSave);
-  fclose(f);//close the file when done saving
+   free(toSave);
+   fclose(f);//close the file when done saving
 }
 void load(dungeon_t *d)
 {
   //int i=0;
-  char path[ strlen(getenv("HOME")+strlen("/.rlg327/dungeon")) +strlen("dungeon")+1] ;
-   strcpy(path,strcat(getenv("HOME"),"/.rlg327/dungeon"));
+  char path[ strlen(getenv("HOME")+strlen("/.rlg327/dungeon"))+1];
+  strcpy(path,getenv("HOME"));
+  strcat(path,"/.rlg327/dungeon");
   //strcpy(path,strcat(path,"dungeon"));
 
-  FILE *f =fopen(path,"r");
-  
+   FILE *f =fopen(path,"r");
+   if(f==NULL)
+     {
+       printf("File Null Error");
+     }
   uint32_t loadLength;
   fseek (f , 0 , SEEK_END);
   loadLength= ftell(f)+1;
@@ -756,7 +786,7 @@ void load(dungeon_t *d)
   printf("%d\n",loadLength);
   //loadLength=be32toh(loadLength);
   char* toLoad =(char*) malloc(loadLength);  
-  // printf("%d",loadLength);
+  // printf("%d\n",(int)sizeof(toLoad));
   // fscanf(f,"%s",);
   //int convert = {toLoad[16],toLoad[17],toLoad[18],toLoad[19]};
   //int loadLength= convert;
@@ -773,15 +803,15 @@ void load(dungeon_t *d)
       fscanf(f,"%c",&toLoad[i]);
     }
   
-  printf("%s",toLoad);
+  //printf("%s",toLoad);
   //fgets(toLoad,loadLength,f);
   d->xPos=toLoad[20];
   d->yPos=toLoad[21];
   //loadLength =toLoad[16];
   //loadLength=be32toh(loadLength);  
-  printf("\n%d\n",loadLength);
+  //printf("\n%d\n",loadLength);
   int temp=22;
-   fscanf(f,"%s",toLoad);
+  //fscanf(f,"%s",toLoad);
 
    for(int i=0;i<DUNGEON_Y;i++)
     {
@@ -800,9 +830,9 @@ void load(dungeon_t *d)
 
        // printf("\n");
     }
-    printf("\n%d\n",temp);
+   // printf("\n%d\n",temp);
    d->num_rooms=(loadLength-temp)/4;
-   printf("%d\n%d\n",loadLength,d->num_rooms);
+   //printf("%d\n%d\n",loadLength,d->num_rooms);
    
     for(int i=0;i<d->num_rooms;i++)
      {
@@ -814,7 +844,7 @@ void load(dungeon_t *d)
        
 
 	 temp+=4;
-	 }
+     }
     char toPrint[DUNGEON_Y][DUNGEON_X];
        for(int i=0;i<DUNGEON_Y;i++)
 	 {
@@ -856,6 +886,7 @@ void load(dungeon_t *d)
 		 }
 	     }
 	 }
+       //  printf("%d",loadLength);
      for(int i=0;i<DUNGEON_Y;i++)
          {
            for(int k=0;k<DUNGEON_X;k++)
@@ -893,10 +924,10 @@ int main(int argc, char *argv[])
 	      break;
 	    case 'S':flagS=1;
 	      break;
-	      	    case 'l':flagL=1;
-	       break;
-	      case 'L':flagL=1;
-	       break;
+	    case 'l':flagL=1;
+	      break;
+	    case 'L':flagL=1;
+	      break;
 	    }
 	}
     }
@@ -911,6 +942,7 @@ int main(int argc, char *argv[])
   srand(seed);
   init_dungeon(&d);
   gen_dungeon(&d);
+  render_dungeon(&d);
     }
    /*
    for(int i=0;i<DUNGEON_Y;i++)
