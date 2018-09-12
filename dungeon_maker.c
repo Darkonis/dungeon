@@ -689,15 +689,17 @@ void save(dungeon_t *d)
   char path[ strlen(getenv("HOME")+strlen("/.rlg327/dungeon"))+1];
   strcpy(path,getenv("HOME"));
   strcat(path,"/.rlg327/dungeon");
-  char folderpath[ strlen(getenv("HOME")+strlen("/.rlg327"))+1];
-  strcpy(folderpath,getenv("HOME"));
-  strcat(folderpath,"/.rlg327");
+  //char folderpath[ strlen(getenv("HOME")+strlen("/.rlg327"))+1];
+  // strcpy(folderpath,getenv("HOME"));
+  // strcat(folderpath,"/.rlg327");
 
   //path=getenv("HOME");
   //printf("%s\n",path);
   //printf("/home/darron/.rlg327/duchar path[ strlen(getenv("HOME")+strlen("/.rlg327/dungeon2"))+1];
-  mkdir(folderpath,2);//makes the directory to save to if it hasn't been made already  
+  //mkdir(folderpath,2);//makes the directory to save to if it hasn't been made already
+  printf("%s",path);
   FILE* f = fopen(path,"w");
+  //fprintf(f,"Test");
 
   
   if(f==NULL)
@@ -754,12 +756,16 @@ void save(dungeon_t *d)
   // toSave[temp]= // null byte?
    //printf("Save Length :%d\n",saveLength);
 
-   for(int i=0;i<saveLength;i++)
+   if(f!=NULL)
      {
+     
        // printf("%u,",toSave[i]);
-       fprintf(f,"%c",toSave[i]);
+   fwrite(toSave,1,saveLength,f);
        // printf("%d,",(uint8_t) toSave[i]);
-       	 
+     }
+   else
+     {
+       exit(-1);
      }
 
    free(toSave);
@@ -903,33 +909,37 @@ int main(int argc, char *argv[])
 {
   dungeon_t d;
   struct timeval tv;
-  uint32_t seed;
+  uint32_t seed=0;
    int flagL=0;//load flag
   int flagS=0;//save flag
   UNUSED(in_room);
-
-  if (argc == 2) {
-    seed = atoi(argv[1]);
-  } else {
-    gettimeofday(&tv, NULL);
-    seed = (tv.tv_usec ^ (tv.tv_sec << 20)) & 0xffffffff;
-  }
-  if(argc>2)
+ 
+  if(argc>1)
     {
-      for(int i=2;i<argc;i++)
+      
+      for(int i=1;i<argc;i++)
 	{
-	  switch(argv[i][2])
+	  if(strcmp(argv[i],"--load")==0)
 	    {
-	    case's':flagS=1;
-	      break;
-	    case 'S':flagS=1;
-	      break;
-	    case 'l':flagL=1;
-	      break;
-	    case 'L':flagL=1;
-	      break;
+	      flagL=1;
+	    }
+	  else if(strcmp(argv[i],"--save")==0)
+	    {
+	      flagS=1;
+
+	    }
+	  else
+	    {
+	      
+		seed = atoi(argv[i]);
+	       
 	    }
 	}
+    }
+  if(seed==0)
+    {
+       gettimeofday(&tv, NULL);
+       seed = (tv.tv_usec ^ (tv.tv_sec << 20)) & 0xffffffff;
     }
    if(flagL==1)
     {
@@ -958,6 +968,7 @@ int main(int argc, char *argv[])
    //  render_dungeon(&d);
   if(flagS==1)
     {
+      printf("Saving\n");
       save(&d);
     }
   return 0;
