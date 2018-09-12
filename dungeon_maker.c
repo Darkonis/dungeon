@@ -740,32 +740,32 @@ void load(dungeon_t *d)
   fseek(f, 0, SEEK_END);
   long loadLength  = ftell(f);
   rewind(f);
-  char* toLoad =(*char) malloc(loadLength);
+  char* toLoad =(char*) malloc(loadLength);
   fgets(toLoad,loadLength,f);
   d->xPos=toLoad[20];
   d->yPos=toLoad[21];
+  int temp=22;
    for(int i=0;i<DUNGEON_Y;i++)
     {
       for(int k=0;k<DUNGEON_X;k++)
         {
-          hardness[i][k]= toLoad[temp];
+         d-> hardness[i][k]= toLoad[temp];
           temp++;
         }
     }
    d->num_rooms=(loadLength-temp)/4;
    for(int i=0;i<d->num_rooms;i++)
      {
-       room_t temp = d->rooms[i]
-       temp->position[0] = toLoad[temp];
-       temp->position[1] = toLoad[temp+1];
-       temp->size[0]=toLoad[temp+2];
-       temp->size[1]=toLoad[temp+3];
-
-
+       // room_t temp2 = d->rooms[i];
+       d->rooms[i].position[0] = toLoad[temp];
+       d->rooms[i].position[1] = toLoad[temp+1];
+       d->rooms[i].size[0]=toLoad[temp+2];
+       d->rooms[i].size[1]=toLoad[temp+3];
+       
 
 	 temp+=4;
      }
-   f.close();
+   fclose(f);
    free(toLoad);
 }
 int main(int argc, char *argv[])
@@ -814,7 +814,7 @@ int main(int argc, char *argv[])
     }
   if(flagS==1)
     {
-      save(&d)
+      save(&d);
     }
   return 0;
 }
