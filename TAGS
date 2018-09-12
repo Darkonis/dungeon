@@ -73,7 +73,7 @@ void delete_dungeon(678,20658
 void init_dungeon(682,20697
 void save(686,20753
 void load(774,23127
-int main(908,26398
+int main(912,26554
 
 heap.c,1009
 #undef min4,39

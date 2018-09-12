@@ -863,7 +863,7 @@ void load(dungeon_t *d)
 	       
 	       if(d->hardness[i][k]==0)
 		 {
-		   toPrint[i][k]='*'; 
+		   toPrint[i][k]='#'; 
 		 }
 	       
 	       else if(d->hardness[i][k]==255&&(i==0||i==20))
@@ -880,6 +880,7 @@ void load(dungeon_t *d)
 		 }
 	       
 	     }
+	   
 	 }
        for(int i=0;i<d->num_rooms;i++)
 	 {
@@ -892,6 +893,9 @@ void load(dungeon_t *d)
 		 }
 	     }
 	 }
+       d->xPos= d->rooms[0].position[0];
+       d->yPos=d->rooms[0].position[1];
+       toPrint[d->rooms[0].position[1]][d->rooms[0].position[0]]='@';
        //  printf("%d",loadLength);
      for(int i=0;i<DUNGEON_Y;i++)
          {
@@ -968,7 +972,6 @@ int main(int argc, char *argv[])
    //  render_dungeon(&d);
   if(flagS==1)
     {
-      printf("Saving\n");
       save(&d);
     }
   return 0;
